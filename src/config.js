@@ -55,7 +55,7 @@ export function newConfig() {
 
   function resetConfig() {
     defaults = {};
-    config = {
+    let newConfig = {
       // `debug` is equivalent to legacy `pbjs.logging` property
       _debug: DEFAULT_DEBUG,
       get debug() {
@@ -163,6 +163,20 @@ export function newConfig() {
       },
 
     };
+
+    if (config) {
+      callSubscribers(
+        Object.keys(config).reduce((memo, topic) => {
+          if (config[topic] !== newConfig[topic]) {
+            memo[topic] = newConfig[topic] || {};
+          }
+          return memo;
+        },
+        {})
+      );
+    }
+
+    config = newConfig;
 
     function hasGranularity(val) {
       return find(Object.keys(GRANULARITY_OPTIONS), option => val === GRANULARITY_OPTIONS[option]);
